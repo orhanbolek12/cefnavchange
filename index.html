@@ -138,6 +138,76 @@
             box-shadow: 0 6px 16px var(--glow);
         }
 
+        .btn-download {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-download:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip-content {
+            visibility: hidden;
+            width: 280px;
+            background-color: var(--bg-deep);
+            color: var(--text-secondary);
+            text-align: left;
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            z-index: 100;
+            top: 125%;
+            left: 50%;
+            margin-left: -140px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip-content::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent var(--border) transparent;
+        }
+
+        .tooltip-wrapper:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-content code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            color: var(--blue);
+        }
+
         .grid-container {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -329,6 +399,23 @@
                     <span id="status" class="badge"
                         style="background:transparent; color:var(--text-primary); font-weight:700">BOT ACTIVE</span>
                 </div>
+                
+                <div class="tooltip-wrapper">
+                    <a href="bot.py" download="bot.py" class="btn-download">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Get Bot
+                    </a>
+                    <div class="tooltip-content">
+                        <strong style="color:var(--text-primary);display:block;margin-bottom:6px;">How to start the tracker:</strong>
+                        1. Download this <code>bot.py</code> file.<br>
+                        2. Place it in the same folder as the web files.<br>
+                        3. Open a terminal in that folder.<br>
+                        4. Run <code>pip install yfinance</code><br>
+                        5. Run <code>python bot.py</code><br>
+                        <em style="color:var(--text-muted);display:block;margin-top:6px;font-size:0.65rem;">Keep the terminal open to receive live updates.</em>
+                    </div>
+                </div>
+
                 <button class="btn-refresh" onclick="update()">REFRESH DATA</button>
             </div>
         </header>
