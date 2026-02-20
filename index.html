@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEF Monitor Premium — Elite Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f1115;
+            --bg-main: #161a1f;
+            --bg-glass: rgba(30, 35, 45, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f0f2f5;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --green: #22c55e;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --glow: rgba(59, 130, 246, 0.2);
+            --font-body: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 11px;
+            line-height: 1.4;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f1115 100%);
+            min-height: 100vh;
+        }
+
+        .app {
+            max-width: 100%;
+            padding: 15px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .v-tag {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--blue);
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+
+        .live-dot::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(3);
+            }
+        }
+
+        .btn-refresh {
+            background: var(--blue);
+            color: #fff;
+            border: 0;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px var(--glow);
+        }
+
+        .btn-refresh:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px var(--glow);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+        }
+
+        .kpi-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .kpi-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .kpi-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .cef-sym {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .nav-val {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .kpi-stats {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .kpi-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 8px;
+        }
+
+        .holding-panel {
+            margin-top: 10px;
+            background: var(--bg-glass);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .panel-hdr {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        td {
+            padding: 6px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            transition: background 0.2s;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sym-cell {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--blue);
+            width: 1%;
+            white-space: nowrap;
+            padding-right: 8px !important;
+        }
+
+        .wgt-cell {
+            font-weight: 600;
+            color: var(--text-secondary);
+            width: 1%;
+            white-space: nowrap;
+        }
+
+        .chg-cell {
+            text-align: right;
+        }
+
+        .chg-link {
+            font-family: var(--font-mono);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .pos {
+            color: var(--green);
+            text-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
+        }
+
+        .neg {
+            color: var(--red);
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
+        }
+
+        .neu {
+            color: var(--text-muted);
+        }
+
+        .toggles {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .chip {
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .chip:hover {
+            border-color: var(--blue);
+            color: #fff;
+        }
+
+        .chip.on {
+            background: var(--blue);
+            color: #fff;
+            border-color: var(--blue);
+            box-shadow: 0 4px 12px var(--glow);
+        }
+
+        .sweep-info {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header>
+            <div class="logo-wrap">
+                <span class="logo">ELITE NAV MONITOR</span>
+                <span class="v-tag">Premium v5.0</span>
+            </div>
+            <div class="status-box">
+                <div class="sweep-info" id="sweepStats">Full cycle tracking...</div>
+                <div style="display:flex; align-items:center; gap:8px">
+                    <span class="live-dot"></span>
+                    <span id="status" class="badge"
+                        style="background:transparent; color:var(--text-primary); font-weight:700">BOT ACTIVE</span>
+                </div>
+                <button class="btn-refresh" onclick="update()">REFRESH DATA</button>
+            </div>
+        </header>
+
+        <div id="togBar" class="toggles"></div>
+
+        <div class="grid-container" id="mainGrid"></div>
+    </div>
+
+    <script>
+        const CEF_DATA = {
+            "HQL": {
+                holdings: [
+                    { s: "AMGN", w: 3.62 }, { s: "PCVX", w: 3.31 }, { s: "INSM", w: 2.92 }, { s: "QURE", w: 2.82 },
+                    { s: "REGN", w: 2.78 }, { s: "CRNX", w: 2.78 }, { s: "DNLI", w: 2.68 }, { s: "FULC", w: 2.62 },
+                    { s: "ARGX", w: 2.42 }, { s: "PSNL", w: 2.26 }, { s: "DYN", w: 2.21 }, { s: "RARE", w: 2.14 },
+                    { s: "IMVT", w: 2.05 }, { s: "XENE", w: 1.95 }, { s: "EWTX", w: 1.87 }, { s: "VRTX", w: 1.80 },
+                    { s: "ALNY", w: 1.73 }, { s: "CYTK", w: 1.69 }, { s: "ARWR", w: 1.65 }, { s: "SRPT", w: 1.51 },
+                    { s: "SION", w: 1.47 }, { s: "BHVN", w: 1.46 }, { s: "AXSM", w: 1.41 }
+                ]
+            },
+            "HQH": {
+                holdings: [
+                    { s: "AMGN", w: 3.31 }, { s: "PCVX", w: 3.21 }, { s: "QURE", w: 2.95 }, { s: "DNLI", w: 2.31 },
+                    { s: "INSM", w: 2.21 }, { s: "CRNX", w: 2.17 }, { s: "ARGX", w: 2.10 }, { s: "REGN", w: 1.96 },
+                    { s: "RARE", w: 1.93 }, { s: "ABT", w: 1.76 }, { s: "PRLD", w: 1.72 }, { s: "IMVT", w: 1.65 },
+                    { s: "SION", w: 1.64 }, { s: "SRPT", w: 1.64 }, { s: "DHR", w: 1.60 }, { s: "XENE", w: 1.59 },
+                    { s: "PSNL", w: 1.52 }, { s: "CYTK", w: 1.45 }, { s: "OCLS", w: 1.41 }, { s: "TECX", w: 1.32 },
+                    { s: "ISRG", w: 1.31 }, { s: "ALNY", w: 1.27 }, { s: "MRK", w: 1.26 }
+                ]
+            },
+            "THQ": {
+                holdings: [
+                    { s: "LLY", w: 5.62 }, { s: "ABBV", w: 5.46 }, { s: "ABT", w: 4.91 }, { s: "MRK", w: 4.62 },
+                    { s: "MDT", w: 3.55 }, { s: "ISRG", w: 3.29 }, { s: "DHR", w: 3.28 }, { s: "TMO", w: 2.79 },
+                    { s: "BMY", w: 2.39 }, { s: "ISPY", w: 2.29 }, { s: "ZTS", w: 2.23 }, { s: "BDX", w: 2.15 },
+                    { s: "BSX", w: 2.03 }, { s: "HUM", w: 2.01 }, { s: "ELV", w: 2.00 }, { s: "CVS", w: 1.83 },
+                    { s: "SRPT", w: 1.83 }, { s: "UNH", w: 1.56 }, { s: "ARSR", w: 1.39 }, { s: "PODD", w: 1.35 },
+                    { s: "OHI", w: 1.31 }, { s: "NEO", w: 1.18 }, { s: "SBRA", w: 1.17 }, { s: "WELL", w: 1.16 },
+                    { s: "REGN", w: 1.14 }
+                ]
+            },
+            "THW": {
+                holdings: [
+                    { s: "AZN", w: 5.27 }, { s: "ABVX", w: 4.92 }, { s: "NVO", w: 4.31 }, { s: "QURE", w: 3.89 },
+                    { s: "SNY", w: 3.51 }, { s: "ABBV", w: 3.03 }, { s: "ABT", w: 2.94 }, { s: "MRK", w: 2.80 },
+                    { s: "RHHBY", w: 2.65 }, { s: "DHR", w: 2.42 }, { s: "MDT", w: 2.36 }, { s: "ISRG", w: 2.28 },
+                    { s: "LLY", w: 2.04 }, { s: "OXB", w: 1.93 }, { s: "ISPY", w: 1.70 }, { s: "TMO", w: 1.63 },
+                    { s: "ZTS", w: 1.49 }, { s: "BSX", w: 1.49 }, { s: "VNT", w: 1.47 }, { s: "LONN", w: 1.40 },
+                    { s: "BDX", w: 1.39 }, { s: "WELL", w: 1.35 }, { s: "CVS", w: 1.16 }, { s: "ARGX", w: 1.13 },
+                    { s: "NAMS", w: 1.05 }
+                ]
+            },
+            "BMEZ": {
+                holdings: [
+                    { s: "ALNY", w: 5.48 }, { s: "VEEV", w: 3.54 }, { s: "INSM", w: 2.65 }, { s: "ABT", w: 2.52 },
+                    { s: "WST", w: 2.52 }, { s: "WXIBF", w: 2.44 }, { s: "IDXX", w: 2.39 }, { s: "DXCM", w: 2.12 },
+                    { s: "GDLMY", w: 2.00 }, { s: "RYTM", w: 1.91 }, { s: "PODD", w: 1.85 }, { s: "EW", w: 1.72 },
+                    { s: "JNJ", w: 1.63 }, { s: "RGEN", w: 1.63 }, { s: "MDT", w: 1.61 }, { s: "SONVY", w: 1.60 },
+                    { s: "GNMSF", w: 1.55 }, { s: "EXAS", w: 1.47 }, { s: "THC", w: 1.47 }, { s: "GH", w: 1.38 },
+                    { s: "NBIX", w: 1.31 }
+                ]
+            },
+            "GRX": {
+                holdings: [
+                    { s: "ABBV", w: 3.60 }, { s: "THC", w: 2.86 }, { s: "JNJ", w: 2.43 }, { s: "CI", w: 2.36 },
+                    { s: "OPCH", w: 2.33 }, { s: "TEVA", w: 2.11 }, { s: "COR", w: 2.07 }, { s: "MRK", w: 2.05 },
+                    { s: "HALO", w: 2.00 }, { s: "POST", w: 1.97 }, { s: "LH", w: 1.84 }, { s: "HCA", w: 1.79 },
+                    { s: "KR", w: 1.77 }, { s: "ZBH", w: 1.74 }, { s: "BRBR", w: 1.71 }, { s: "SJM", w: 1.71 },
+                    { s: "TMO", w: 1.70 }, { s: "ELV", w: 1.69 }, { s: "NSRGY", w: 1.68 }, { s: "CVS", w: 1.63 },
+                    { s: "KRYAY", w: 1.57 }, { s: "COO", w: 1.54 }, { s: "ITGR", w: 1.54 }, { s: "CHE", w: 1.50 }
+                ]
+            }
+        };
+
+        const S = {
+            prices: {},
+            stats: {},
+            hidden: new Set(JSON.parse(localStorage.getItem('cnav_h') || '[]'))
+        };
+
+        async function update() {
+            try {
+                const r = await fetch('prices.json?t=' + Date.now());
+                if (!r.ok) throw new Error("Offline");
+                const res = await r.json();
+                S.prices = res.data || {};
+                S.stats = res.stats || {};
+
+                if (S.stats.last_sweep) {
+                    document.getElementById('sweepStats').textContent =
+                        `FULL SWEEP: ${S.stats.last_cycle_s}s | LAST: ${S.stats.last_sweep}`;
+                }
+                render();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function calcNav(cef) {
+            const data = CEF_DATA[cef];
+            let navChg = 0, weightCovered = 0;
+            const rows = [];
+            data.holdings.forEach(h => {
+                const px = S.prices[h.s] || { chg: 0, state: 'N/A' };
+                navChg += (px.chg * h.w) / 100;
+                weightCovered += h.w;
+                rows.push({ s: h.s, w: h.w, chg: px.chg, session: px.state });
+            });
+            return { navChg, weightCovered, rows };
+        }
+
+        function render() {
+            const container = document.getElementById('mainGrid');
+            const activeKeys = Object.keys(CEF_DATA).filter(k => !S.hidden.has(k));
+
+            container.innerHTML = '';
+            activeKeys.forEach(k => {
+                const res = calcNav(k);
+                const cl = res.navChg > 0 ? 'pos' : res.navChg < 0 ? 'neg' : 'neu';
+
+                let rowsHtml = '';
+                res.rows.sort((a, b) => b.w - a.w).forEach(r => {
+                    const rCl = r.chg > 0 ? 'pos' : r.chg < 0 ? 'neg' : 'neu';
+                    const pref = r.session.startsWith('PRE') ? 'P' : r.session.startsWith('POST') ? 'A' : '';
+                    rowsHtml += `<tr>
+                        <td class="sym-cell">${r.s}</td>
+                        <td class="wgt-cell">${r.w.toFixed(1)}%</td>
+                        <td class="chg-cell">
+                            <a href="https://finance.yahoo.com/quote/${r.s}" target="_blank" class="chg-link ${rCl}">
+                               <small style="font-size:0.5rem; opacity:0.6">${pref}</small>${(r.chg >= 0 ? '+' : '') + r.chg.toFixed(2)}%
+                            </a>
+                        </td>
+                    </tr>`;
+                });
+
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="col-wrap">
+                        <div class="kpi-card">
+                            <div class="kpi-head">
+                                <span class="cef-sym">${k}</span>
+                                <span class="nav-val ${cl}">${(res.navChg >= 0 ? '+' : '') + res.navChg.toFixed(3)}%</span>
+                            </div>
+                            <div class="kpi-stats">
+                                ${res.rows.length} Tickers | ${res.weightCovered.toFixed(1)}% Weight
+                            </div>
+                            <div class="kpi-footer">
+                                <span>Updated: ${S.prices[k]?.ts || '-'}</span>
+                            </div>
+                        </div>
+                        <div class="holding-panel">
+                            <div class="panel-hdr">${k} COMPOSITION</div>
+                            <table>
+                                <thead><tr><th>SYM</th><th>WT</th><th style="text-align:right">CHG</th></tr></thead>
+                                <tbody>${rowsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        function renderToggles() {
+            const b = document.getElementById('togBar');
+            b.innerHTML = '';
+            Object.keys(CEF_DATA).forEach(k => {
+                const chip = document.createElement('span');
+                chip.className = 'chip' + (!S.hidden.has(k) ? ' on' : '');
+                chip.textContent = k;
+                chip.onclick = () => {
+                    if (S.hidden.has(k)) S.hidden.delete(k); else S.hidden.add(k);
+                    localStorage.setItem('cnav_h', JSON.stringify([...S.hidden]));
+                    renderToggles(); render();
+                };
+                b.appendChild(chip);
+            });
+        }
+
+        renderToggles();
+        setInterval(update, 2000);
+        update();
+    </script>
+</body>
+
+</html>
